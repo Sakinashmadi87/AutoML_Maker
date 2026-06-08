@@ -71,19 +71,17 @@ class QdrantManager:
             )
 
     def search_retriever(self, collection_name: str, query_vector: list, top_k: int = 3) -> list:
+    # Alte Qdrant-Version: positional arguments ONLY
         results = self.client.search(
-        collection_name=collection_name,
-        query_vector=query_vector,
-        limit=top_k
-    )
-
+            collection_name,
+            query_vector,
+            top_k
+        )
         return [
             r.payload.get("text_llm", "")
             for r in results
             if r.payload
         ]
-
-
 
     def delete_trial_collection(self, collection_name: str):
         if self.client.collection_exists(collection_name):
