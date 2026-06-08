@@ -7,7 +7,6 @@ from pathlib import Path
 import os
 os.environ["RAGAS_DISABLE_LLM_IMPORT"] = "1"
 
-# Ragas Framework für die wissenschaftliche Evaluierung
 from ragas import EvaluationDataset
 from ragas.metrics import F1Score
 from ragas import evaluate
