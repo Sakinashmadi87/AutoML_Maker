@@ -37,7 +37,7 @@ def is_valid_chunk(text: str) -> bool:
         return False
     return True
 
-def robust_generate_qa(item):
+def robust_generate_qa(item, pipe, tokenizer, system_prompt):
     context = item["context"]
     if not is_valid_chunk(context):
         return None
@@ -113,33 +113,33 @@ FORMAT:
         "expected_context": context,
     }
 
-# --- AUSFÜHRUNG ---
+# Diese Funktion kapselt den Ablauf sauber, sodass du sie im Notebook aufrufen kannst
+def run_ground_truth_generation(all_valid_chunks, pipe, tokenizer, system_prompt, output_path):
+    if len(all_valid_chunks) > 100:
+        selected_chunks = random.sample(all_valid_chunks, 100)
+    else:
+        selected_chunks = all_valid_chunks
 
-# WICHTIG: Erhöhe die Stichprobe auf z.B. 100, um Puffer für Filter zu haben
-if len(all_valid_chunks) > 100:
-    selected_chunks = random.sample(all_valid_chunks, 100)
-else:
-    selected_chunks = all_valid_chunks
+    ground_truth_dataset = []
 
-ground_truth_dataset = []
+    for item in tqdm(selected_chunks, desc="Generiere Ground Truth"):
+        # HIER WAR DER FEHLER BEHOBEN: Jetzt werden alle Parameter übergeben!
+        qa = robust_generate_qa(item, pipe, tokenizer, system_prompt)
+        if qa:
+            qa["id"] = len(ground_truth_dataset) + 1
+            ground_truth_dataset.append(qa)
+        if len(ground_truth_dataset) >= 50:
+            break
 
-# tqdm für den Fortschrittsbalken nutzen
-for item in tqdm(selected_chunks, desc="Generiere Ground Truth"):
-    qa = robust_generate_qa(item)
-    if qa:
-        qa["id"] = len(ground_truth_dataset) + 1
-        ground_truth_dataset.append(qa)
-    if len(ground_truth_dataset) >= 50:
-        break
+    with open(output_path, "w", encoding="utf-8") as f:
+        json.dump(ground_truth_dataset, f, indent=4, ensure_ascii=False)
 
-# --- SPEICHERN ---
-with open(GROUND_TRUTH_OUTPUT_PATH, "w", encoding="utf-8") as f:
-    json.dump(ground_truth_dataset, f, indent=4, ensure_ascii=False)
+    print(f"\n🎉 FERTIG! {len(ground_truth_dataset)} Frage-Antwort-Paare erfolgreich generiert.")
+    print(f"💾 Gespeichert unter: {output_path}")
 
-print(f"\n🎉 FERTIG! {len(ground_truth_dataset)} Frage-Antwort-Paare erfolgreich generiert.")
-print(f"💾 Gespeichert unter: {GROUND_TRUTH_OUTPUT_PATH}")
-
-if ground_truth_dataset:
-    df_preview = pd.DataFrame(ground_truth_dataset).head(3)
-    print("\n🔍 Vorschau:")
-    print(df_preview[["arxiv_id", "query", "gold_standard_answer"]])
+    if ground_truth_dataset:
+        df_preview = pd.DataFrame(ground_truth_dataset).head(3)
+        print("\n🔍 Vorschau:")
+        print(df_preview[["arxiv_id", "query", "gold_standard_answer"]])
+        
+    return ground_truth_dataset
