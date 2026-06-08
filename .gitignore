@@ -1,0 +1,46 @@
+# === SICHERHEIT (API-Schlüssel & Geheimnisse) ===
+*.env
+.env*
+secrets.env
+*.pem
+*.key
+kaggle.json
+
+# === KAGGLER / JUPYTER NOTEBOOKS ===
+.ipynb_checkpoints
+*/.ipynb_checkpoints/*
+*~
+*.log
+
+# === PYTHON (Cache & Kompiliertes) ===
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+.mypy_cache/
+
+# === DATEN & MODELLE (Zu groß für GitHub) ===
+# Ignoriert lokale Datensätze, CSVs, JSONs und Modellgewichte
+data/
+datasets/
+models/
+*.json
+*.jsonl
+*.csv
+*.xlsx
+*.pkl
+*.pickle
+*.h5
+*.pt
+*.pth
+*.bin
+
+# === VIRTUELLE UMGEBUNGEN ===
+.venv/
+venv/
+ENV/
+env/
+
+# === SYSTEM-DATEIEN ===
+.DS_Store
+Thumbs.db
