@@ -5,8 +5,11 @@ import random
 import optuna
 from pathlib import Path
 from modules.metrics import compute_retrieval_f1
+import os
+os.environ["RAGAS_DISABLE_LLM_IMPORT"] = "1"  # Verhindert die automatische LLM-Initialisierung von RAGAS, da wir sie hier nicht benötigen
 
-# Injektion deiner modularen Pipeline-Bausteine aus dem Repository
+# Lokale Importe
+from modules.metrics import compute_retrieval_f1
 from config.paths_config import PATHS
 from modules.chunker import chunk_markdown_section, chunk_semantic, chunk_hierarchical, chunk_recursive
 from modules.embedder import embed_texts
