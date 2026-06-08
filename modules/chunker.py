@@ -1,5 +1,7 @@
 #modules/embedder.py
-from langchain.text_splitter import MarkdownHeaderTextSplitter, RecursiveCharacterTextSplitter
+from langchain_experimental.text_splitter import MarkdownHeaderTextSplitter
+from langchain_text_splitters import RecursiveCharacterTextSplitter
+
 
 # -----------------------------
 # 1. MARKDOWN SECTION SPLITTER
