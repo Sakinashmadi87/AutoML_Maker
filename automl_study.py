@@ -4,12 +4,7 @@ import json
 import random
 import optuna
 from pathlib import Path
-import os
-os.environ["RAGAS_DISABLE_LLM_IMPORT"] = "1"
-
-from ragas import EvaluationDataset
-from ragas.metrics import F1Score
-from ragas import evaluate
+from modules.metrics import compute_retrieval_f1
 
 # Injektion deiner modularen Pipeline-Bausteine aus dem Repository
 from config.paths_config import PATHS
@@ -140,17 +135,14 @@ def objective(trial):
             ragas_ground_truths.append(gold_answer)
 
         # ─── SCHRITT 5: RAGAS EVALUIERUNG DER METRIK ───
-        # Dataset für das Ragas-Framework strukturieren
-        evaluation_dataset = EvaluationDataset.from_list([
-            {"user_input": q, "retrieved_contexts": ctx, "reference": gt} 
-            for q, ctx, gt in zip(ragas_user_queries, ragas_retrieved_contexts, ragas_ground_truths)
-        ])
-        
-        print("📊 Berechne Ragas F1-Score für das Retrieval...")
-        result = evaluate(dataset=evaluation_dataset, metrics=[F1Score()])
-        f1_score = float(result["f1_score"])
-        
-        print(f"🎯 Trial #{trial.number} erfolgreich beendet mit Ragas F1-Score: {f1_score:.4f}")
+        print("📊 Berechne eigenen Retrieval-F1-Score...")
+
+        f1_score = compute_retrieval_f1(
+            retrieved_contexts=ragas_retrieved_contexts,
+            gold_contexts=ragas_ground_truths
+        )
+
+        print(f"🎯 Trial #{trial.number} abgeschlossen mit F1: {f1_score:.4f}")
 
     except Exception as e:
         print(f"❌ Fehler im Trial #{trial.number}: {e}")
