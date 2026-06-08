@@ -1,16 +1,12 @@
 # modules/qdrant_storage.py
 import os
-import uuid  # NEU: Für absolut sichere IDs auf Remote-Servern
+import uuid
 from kaggle_secrets import UserSecretsClient
 from qdrant_client import QdrantClient
 from qdrant_client.models import Distance, VectorParams, HnswConfigDiff, PointStruct
 
 class QdrantManager:
     def __init__(self):
-        """
-        Initialisiert den Qdrant-Client für einen REMOTE-Server (z.B. Qdrant Cloud).
-        Nutzt Kaggle Secrets für maximale Sicherheit.
-        """
         user_secrets = UserSecretsClient()
         qdrant_url = user_secrets.get_secret("QDRANT_URL_A")
         qdrant_api_key = user_secrets.get_secret("QDRANT_API_KEY_A")
@@ -19,13 +15,12 @@ class QdrantManager:
             raise ValueError("❌ Kritischer Fehler: QDRANT_URL oder QDRANT_API_KEY fehlt in den Kaggle Secrets!")
             
         self.client = QdrantClient(
-            url=qdrant_url,      
+            url=qdrant_url,
             api_key=qdrant_api_key,
-            timeout=60  # Ein höheres Timeout ist bei Remote-Servern sehr sinnvoll!
+            timeout=60
         )
 
     def create_trial_collection(self, collection_name: str, vector_size: int = 1024):
-        # Falls die Collection durch einen vorherigen Trial-Absturz noch existiert, löschen
         if self.client.collection_exists(collection_name):
             self.client.delete_collection(collection_name)
 
@@ -56,8 +51,6 @@ class QdrantManager:
                 }
             }
 
-            # Verwende eine stringbasierte UUID v4. Das verhindert jegliche ID-Überschneidungen 
-            # auf dem Remote-Server, falls Collections im Hintergrund asynchron gelöscht/erstellt werden.
             point_id = str(uuid.uuid4())
 
             points.append(
@@ -68,13 +61,14 @@ class QdrantManager:
                 )
             )
 
-        # Bei einem Remote-Server ist 'wait=True' besonders wichtig,
-        # damit das anschließende Retrieval im selben Trial nicht ins Leere läuft.
-        self.client.upsert(
-            collection_name=collection_name,
-            points=points,
-            wait=True
-        )
+        # Batch-Upsert (500 Punkte pro Request)
+        for i in range(0, len(points), 500):
+            batch = points[i:i+500]
+            self.client.upsert(
+                collection_name=collection_name,
+                points=batch,
+                wait=True
+            )
 
     def search_retriever(self, collection_name: str, query_vector: list, top_k: int = 3) -> list:
         results = self.client.search(
