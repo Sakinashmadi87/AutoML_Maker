@@ -1,5 +1,4 @@
 #modules/embedder.py
-from langchain_experimental.text_splitter import MarkdownHeaderTextSplitter
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 
 
@@ -7,24 +6,33 @@ from langchain_text_splitters import RecursiveCharacterTextSplitter
 # 1. MARKDOWN SECTION SPLITTER
 # -----------------------------
 def chunk_markdown_section(text, chunk_size, overlap):
-    # Schritt A: Nach strukturellen Markdown-Headern trennen
-    header_splitter = MarkdownHeaderTextSplitter(
-        headers_to_split_on=[("#", "h1"), ("##", "h2"), ("###", "h3")]
-    )
-    sections = header_splitter.split_text(text)
-    
-    # Schritt B: Jede Section auf die vom AutoML geforderte Chunk-Größe bringen
-    sub_splitter = RecursiveCharacterTextSplitter(
+    """
+    Simpler Markdown-Section-Splitter ohne langchain_experimental.
+    Trennt anhand von Überschriften (#, ##, ###).
+    """
+    import re
+
+    # Sections anhand von Markdown-Headlines splitten
+    sections = re.split(r"\n(?=#)", text)
+
+    # Falls keine Sections erkannt wurden → fallback auf recursive
+    if len(sections) <= 1:
+        splitter = RecursiveCharacterTextSplitter(
+            chunk_size=chunk_size,
+            chunk_overlap=overlap
+        )
+        return splitter.split_text(text)
+
+    # Jede Section ggf. weiter chunking
+    splitter = RecursiveCharacterTextSplitter(
         chunk_size=chunk_size,
         chunk_overlap=overlap
     )
-    
+
     final_chunks = []
-    for section in sections:
-        # Falls du Header-Metadaten behalten willst, kannst du sie hier aus section.metadata ziehen
-        chunks = sub_splitter.split_text(section.page_content)
-        final_chunks.extend(chunks)
-        
+    for sec in sections:
+        final_chunks.extend(splitter.split_text(sec))
+
     return final_chunks
 
 
