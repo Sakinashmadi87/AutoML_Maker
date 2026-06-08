@@ -192,7 +192,9 @@ def objective(trial):
         f1_score = compute_retrieval_f1(
             retrieved_contexts=ragas_retrieved_contexts,
             gold_contexts=ragas_ground_truths,
+            model_key=embedding_model_param
         )
+
 
         print(f"🎯 Trial #{trial.number} abgeschlossen mit F1: {f1_score:.4f}")
 
