@@ -4,6 +4,8 @@ import json
 import random
 import optuna
 from pathlib import Path
+import os
+os.environ["RAGAS_DISABLE_LLM_IMPORT"] = "1"
 
 # Ragas Framework für die wissenschaftliche Evaluierung
 from ragas import EvaluationDataset
