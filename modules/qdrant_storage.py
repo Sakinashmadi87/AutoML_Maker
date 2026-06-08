@@ -71,7 +71,7 @@ class QdrantManager:
             )
 
     def search_retriever(self, collection_name: str, query_vector: list, top_k: int = 3) -> list:
-        results = self.client.search(
+        results = self.client.search_points(
             collection_name=collection_name,
             query_vector=query_vector,
             limit=top_k
