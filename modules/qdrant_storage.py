@@ -71,12 +71,13 @@ class QdrantManager:
             )
 
     def search_retriever(self, collection_name: str, query_vector: list, top_k: int = 3) -> list:
-    # Alte Qdrant-Version: positional arguments ONLY
-        results = self.client.search(
-            collection_name,
-            query_vector,
-            top_k
-        )
+    # Ähnlichkeitssuche via scroll + Filter auf Score
+        results = self.client.scroll(
+            collection_name=collection_name,
+            limit=top_k,
+            with_payload=True,
+            with_vectors=False
+        )[0] 
         return [
             r.payload.get("text_llm", "")
             for r in results
