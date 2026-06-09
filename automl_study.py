@@ -10,7 +10,7 @@ import os
 os.environ["RAGAS_DISABLE_LLM_IMPORT"] = "1"
 
 # Lokale Importe
-from modules.metrics import compute_retrieval_f1
+from modules.metrics import optimize_similarity_threshold
 from config.paths_config import PATHS
 from modules.chunker import (
     chunk_markdown_section,
@@ -189,11 +189,14 @@ def objective(trial):
         # ─── SCHRITT 5: EIGENE F1-METRIK ───
         print("📊 Berechne eigenen Retrieval-F1-Score...")
 
-        f1_score = compute_retrieval_f1(
+        best_threshold, f1_score = optimize_similarity_threshold(
             retrieved_contexts=ragas_retrieved_contexts,
             gold_contexts=ragas_ground_truths,
             model_key=embedding_model_param
         )
+
+        print(f"🔧 Optimaler Threshold: {best_threshold:.2f}")
+
 
 
         print(f"🎯 Trial #{trial.number} abgeschlossen mit F1: {f1_score:.4f}")
