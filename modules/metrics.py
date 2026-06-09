@@ -30,11 +30,12 @@ def optimize_similarity_threshold(retrieved_contexts, gold_contexts, model_key):
 
     # 2. Sweep über erweiterten Schwellenwert-Bereich
     if model_key == "bge-m3":
-        thresholds = np.linspace(0.35, 0.60, 15)
-        best_threshold = 0.30
+        thresholds = np.linspace(0.45, 0.70, 15)
+        best_threshold = 0.45
     else:
         thresholds = np.linspace(0.55, 0.85, 15)
         best_threshold = 0.55
+
 
     
     best_f1 = 0.0
