@@ -37,7 +37,7 @@ def compute_retrieval_f1(retrieved_contexts, gold_contexts, model_key, sim_thres
 # 2. AUTOMATISCHE THRESHOLD-OPTIMIERUNG
 # ---------------------------------------------------------
 def optimize_similarity_threshold(retrieved_contexts, gold_contexts, model_key):
-    thresholds = np.linspace(0.30, 0.90, 25)
+    thresholds = np.linspace(0.55, 0.85, 15)
     best_threshold = 0.0
     best_f1 = 0.0
 
