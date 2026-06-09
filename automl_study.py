@@ -10,7 +10,7 @@ import os
 os.environ["RAGAS_DISABLE_LLM_IMPORT"] = "1"
 
 # Lokale Importe
-from modules.metrics import optimize_similarity_threshold, compute_retrieval_f1
+from modules.metrics import optimize_similarity_threshold
 from config.paths_config import PATHS
 from modules.chunker import (
     chunk_markdown_section,
