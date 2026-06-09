@@ -29,7 +29,7 @@ def optimize_similarity_threshold(retrieved_contexts, gold_contexts, model_key):
         max_similarities = np.append(max_similarities, np.max(sims))
 
     # 2. Sweep über erweiterten Schwellenwert-Bereich
-    thresholds = np.linspace(0.30, 0.85, 20)
+    thresholds = np.linspace(0.40, 0.65, 15)
     best_threshold = 0.55
     best_f1 = 0.0
     

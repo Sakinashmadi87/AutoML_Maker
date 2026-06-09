@@ -39,7 +39,6 @@ def embed_texts(texts, model_key: str, is_query: bool = False, batch_size: int =
         
     model = load_embedder(model_key)
 
-    # Keine Qwen-Sonderbehandlung mehr nötig
     texts_to_encode = texts
 
     vectors = model.encode(
