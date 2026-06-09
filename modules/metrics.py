@@ -1,55 +1,55 @@
+# modules/metrics.py
 import numpy as np
-from sklearn.metrics import f1_score
 from modules.embedder import embed_texts
 
-# ---------------------------------------------------------
-# 1. EINZELNER F1 SCORE FÜR EINEN FIXEN THRESHOLD
-# ---------------------------------------------------------
-def compute_retrieval_f1(retrieved_contexts, gold_contexts, model_key, sim_threshold=0.60):
-    y_true = []
-    y_pred = []
-
-    for retrieved, gold in zip(retrieved_contexts, gold_contexts):
-        y_true.append(1)
-
-        if not retrieved or not gold:
-            y_pred.append(0)
-            continue
-
-        # Gold-Antwort einbetten
-        gold_vec = np.array(embed_texts(gold, model_key=model_key, is_query=True)[0])
-
-        # Chunks einbetten
-        chunk_vecs = np.array(embed_texts(retrieved, model_key=model_key, is_query=False))
-
-        # Cosine Similarity
-        sims = chunk_vecs @ gold_vec / (
-            np.linalg.norm(chunk_vecs, axis=1) * np.linalg.norm(gold_vec) + 1e-8
-        )
-
-        hit = np.max(sims) >= sim_threshold
-        y_pred.append(1 if hit else 0)
-
-    return f1_score(y_true, y_pred)
-
-
-# ---------------------------------------------------------
-# 2. AUTOMATISCHE THRESHOLD-OPTIMIERUNG
-# ---------------------------------------------------------
 def optimize_similarity_threshold(retrieved_contexts, gold_contexts, model_key):
-    thresholds = np.linspace(0.55, 0.85, 15)
-    best_threshold = 0.0
-    best_f1 = 0.0
+    """
+    Optimiert den Cosine-Similarity-Threshold für ein gegebenes Modell,
+    ohne die Embeddings redundant neu zu berechnen.
+    
+    Erweitert auf 0.30 bis 0.85, um gestauchte Vektorräume (bge-m3) aufzufangen.
+    """
+    # 1. Vorab-Berechnung aller maximalen Ähnlichkeiten pro Frage (Sehr schnell!)
+    max_similarities = []
+    
+    for retrieved, gold in zip(retrieved_contexts, gold_contexts):
+        if not retrieved or not gold:
+            max_similarities.append(0.0)
+            continue
+            
+        # Einbetten der Texte (nur 1x pro Trial-Aufruf)
+        gold_vec = np.array(embed_texts(gold, model_key=model_key, is_query=True)[0])
+        chunk_vecs = np.array(embed_texts(retrieved, model_key=model_key, is_query=False))
+        
+        # Matrix-Multiplikation für Cosine Similarity
+        norms = np.linalg.norm(chunk_vecs, axis=1) * np.linalg.norm(gold_vec) + 1e-8
+        sims = (chunk_vecs @ gold_vec) / norms
+        
+        max_similarities = np.array(max_similarities) if isinstance(max_similarities, np.ndarray) else np.array([])
+        max_similarities = np.append(max_similarities, np.max(sims))
 
+    # 2. Sweep über erweiterten Schwellenwert-Bereich
+    thresholds = np.linspace(0.30, 0.85, 20)
+    best_threshold = 0.55
+    best_f1 = 0.0
+    
     for t in thresholds:
-        f1 = compute_retrieval_f1(
-            retrieved_contexts=retrieved_contexts,
-            gold_contexts=gold_contexts,
-            model_key=model_key,
-            sim_threshold=t
-        )
+        # Berechne True Positives (getroffen) und False Negatives (verfehlt)
+        tp = np.sum(max_similarities >= t)
+        fn = np.sum(max_similarities < t)
+        
+        # Da y_true in unserem Kontext immer 1 ist (die Dokumente SOLLTEN gefunden werden),
+        # entspricht Precision hier immer 1.0 für die getroffenen Instanzen.
+        # Der klassische F1-Score vereinfacht sich hier zu:
+        if tp == 0:
+            f1 = 0.0
+        else:
+            precision = 1.0
+            recall = tp / (tp + fn)
+            f1 = 2 * (precision * recall) / (precision + recall)
+            
         if f1 > best_f1:
             best_f1 = f1
             best_threshold = t
-
-    return best_threshold, best_f1
+            
+    return float(best_threshold), float(best_f1)
