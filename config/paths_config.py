@@ -9,7 +9,7 @@ PATHS = {
     "eval_set_100q": "/kaggle/input/datasets/sakineahmadi/eval-set-100q/eval_set_100q (2).jsonl",
     
     # Quellordner mit den 1965 von Marker parsten wissenschaftlichen Arbeiten
-    "markdown": "/kaggle/input/datasets/sakinehahmadi/marker-parsed-papers-1965/marker_parsed_papers",
+    "markdown": "/kaggle/input/datasets/sakinaahmadi87/marker-parsed-papers-2765/marker_parsed_papers",
     
     # Optional: Ein Ordner für deine lokalen Testergebnisse oder Logs
     "output_dir": "/kaggle/working/output"
