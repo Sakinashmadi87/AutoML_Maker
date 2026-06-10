@@ -32,14 +32,15 @@ client = QdrantClient(url=url, api_key=api_key)
 # ---------------------------------------------------------------------
 # 3. PRODUKTIONS-INDEX INITIALISIEREN
 # ---------------------------------------------------------------------
-print("🚀 Erstelle finale Produktions-Collection...")
-# Ein kurzes Test-Embedding, um die exakte Dimension dynamisch zu bestimmen
-sample_dim = len(embed_texts(["Test"], model_key=EMBED_MODEL, is_query=False)[0])
+print("🚀 Erstelle finale maker_hierarchical_1024-Collection...")
+sample_dim = 1024  # Muss mit der Embedder-Ausgabe übereinstimmen
 
-client.create_collection(
-        collection_name=PRODUCTION_COLLECTION,
-        vectors_config=VectorParams(size=sample_dim, distance=Distance.COSINE)
-    )
+collection_name = PRODUCTION_COLLECTION
+if not client.collection_exists(collection_name):
+        client.create_collection(
+            collection_name=collection_name,
+            vectors_config=VectorParams(size=sample_dim, distance=Distance.COSINE)
+        )
 print(f"✅ Collection '{PRODUCTION_COLLECTION}' (Dimension: {sample_dim}) bereit.")
 
 # ---------------------------------------------------------------------
