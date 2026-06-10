@@ -36,10 +36,10 @@ print("🚀 Erstelle finale Produktions-Collection...")
 # Ein kurzes Test-Embedding, um die exakte Dimension dynamisch zu bestimmen
 sample_dim = len(embed_texts(["Test"], model_key=EMBED_MODEL, is_query=False)[0])
 
-client.recreate_collection(
-    collection_name=PRODUCTION_COLLECTION,
-    vectors_config=VectorParams(size=sample_dim, distance=Distance.COSINE)
-)
+client.create_collection(
+        collection_name=PRODUCTION_COLLECTION,
+        vectors_config=VectorParams(size=sample_dim, distance=Distance.COSINE)
+    )
 print(f"✅ Collection '{PRODUCTION_COLLECTION}' (Dimension: {sample_dim}) bereit.")
 
 # ---------------------------------------------------------------------
