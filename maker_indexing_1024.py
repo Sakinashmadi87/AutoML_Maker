@@ -85,19 +85,23 @@ for idx, file_path in enumerate(all_md_files, start=1):
             embeddings = embed_texts(texts_to_embed, model_key=EMBED_MODEL, is_query=False)
             
             # 3. PointStructs für Qdrant aufbauen
+            
             points = []
             for i, item in enumerate(current_chunks):
+                # Dynamische Typprüfung: Nutze .tolist() nur, wenn es ein NumPy-Array ist
+                vector_data = embeddings[i].tolist() if hasattr(embeddings[i], "tolist") else embeddings[i]
+    
                 points.append(
                     PointStruct(
                         id=str(uuid.uuid4()),
-                        vector=embeddings[i].tolist(),
+                        vector=vector_data,  # Garantiert eine native Python-Liste
                         payload={
                             "text": item["text"],
                             "source_document": item["source"]
                         }
                     )
                 )
-            
+      
             # 4. In stabilen Unter-Batches hochladen
             for k in range(0, len(points), UPSERT_BATCH_SIZE):
                 client.upsert(
