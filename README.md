@@ -5,7 +5,7 @@ Das Ziel von diesem Projekt ist es, eine RAG-Pipeline (Retrieval-Augmented Gener
 
 Die wissenschaftlichen Paper wurden vorher mit dem Tool `Marker` aus PDFs in Markdown-Dateien umgewandelt (insgesamt 1965 Papers).
 
-## 📁 Ordnerstruktur von meinem Projekt
+## Ordnerstruktur von meinem Projekt
 
 Ich habe den Code jetzt in Module aufgeteilt, damit es übersichtlicher ist als in einem großen Jupyter Notebook:
 
@@ -25,7 +25,6 @@ Das Skript `automl_study.py` probiert automatisch verschiedene Kombinationen aus
 
 1.  **Embedding-Modelle:**
     * `bge-m3` (macht nativ 1024 Dimensionen)
-    * `gte-qwen2` (Achtung: Macht eigentlich 1536 Dimensionen, aber im Code schneide ich das über Matryoshka auf 1024 ab und normalisiere neu!)
     * `mxbai-large` (macht nativ 1024 Dimensionen)
 2.  **Chunking-Strategien:**
     * `markdown_section` (splittet nach Überschriften #, ##, ###)
@@ -36,13 +35,13 @@ Das Skript `automl_study.py` probiert automatisch verschiedene Kombinationen aus
     * Chunk-Größe: Entweder `512` oder `1024` Tokens.
     * Overlap: Ist im Code fest auf `10%` von der Chunk-Größe eingestellt.
 
-## 📊 Wie funktioniert die Evaluation?
+## Wie funktioniert die Evaluation?
 
 * Ich benutze das `eval_set_100q.jsonl` (da sind die 79 Gold-Standard-Fragen drin, die fehlerfrei generiert wurden).
 * Weil das Testen mit allen 1965 Papers in jedem Optuna-Schritt viel zu lange dauern würde (und teuer auf dem Server ist), nimmt das Skript im Moment eine **Zufallsstichprobe von 20 Papers** (`TUNING_FILES`).
 * Am Ende wird die Collection in Qdrant immer wieder gelöscht, damit der Cloud-Speicher nicht voll wird.
 
-## 🚀 Wie man das Projekt startet
+## Wie man das Projekt startet
 
 ### 1. Librarys installieren
 Man braucht ein paar Pakete. Am besten vorher im Terminal oder in einer Notebook-Zelle installieren:
