@@ -35,8 +35,6 @@ def optimize_similarity_threshold(retrieved_contexts, gold_contexts, model_key):
     else:
         thresholds = np.linspace(0.55, 0.85, 15)
         best_threshold = 0.55
-
-
     
     best_f1 = 0.0
     
