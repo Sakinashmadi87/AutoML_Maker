@@ -27,10 +27,19 @@ class ArxivParser:
             from docling.document_converter import DocumentConverter
             self.converter = DocumentConverter()
             
+        # 2. Marker-Parser krisensicher laden (Verhindert den harten Crash auf Kaggle!)
         elif self.method == "Marker":
-            print("🚀 Initialisiere Marker-Parser (Transformers-Modelle werden geladen)...")
-            from marker.convert import Converter
-            self.converter = Converter()
+            print("🚀 Initialisiere Marker-Parser (Schutz-Stub aktiv)...")
+            try:
+                from marker.converter import Converter
+                self.converter = Converter()
+            except ImportError:
+                try:
+                    from marker.convert import Converter
+                    self.converter = Converter()
+                except ImportError:
+                    print("⚠️ Marker-Bibliothek fehlt auf dem Cluster. Parser läuft im sicheren Fallback-Modus.")
+                    self.converter = None
 
     def parse(self, pdf_path):
         if self.method == "PyMuPDF4LLM":

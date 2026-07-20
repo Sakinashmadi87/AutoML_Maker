@@ -5,18 +5,37 @@ import numpy as np
 import re
 
 # ---------------------------------------------------------
+# GLOBAL CACHE FÜR SEMANTIC MODEL
+# ---------------------------------------------------------
+_SEMANTIC_MODEL = None
+
+def get_semantic_model():
+    """Lädt das Semantic-Modell nur einmal."""
+    global _SEMANTIC_MODEL
+    if _SEMANTIC_MODEL is None:
+        _SEMANTIC_MODEL = SentenceTransformer("all-MiniLM-L6-v2")
+    return _SEMANTIC_MODEL
+
+# ---------------------------------------------------------
 # 1. HYBRID / MARKDOWN SECTION SPLITTER
 # ---------------------------------------------------------
 def chunk_hybrid(text, chunk_size, overlap=None):
+    """
+    Hybrid Chunking: Markdown-Sections + Recursive Splitting.
+    - Erhält Dokumentenstruktur durch Überschriften.
+    - Fallback auf Recursive, wenn keine Überschriften vorhanden.
+    """
     if overlap is None:
-        overlap = int(chunk_size * 0.1)  # Dynamischer 10% Overlap
+        overlap = int(chunk_size * 0.1)
         
-    sections = re.split(r"\n(?=#)", text)
+    # Markdown-Überschriften erkennen (#, ##, ###, ####)
+    sections = re.split(r"\n(?=#{1,4}\s)", text)
 
     if len(sections) <= 1:
         splitter = RecursiveCharacterTextSplitter(
             chunk_size=chunk_size,
-            chunk_overlap=overlap
+            chunk_overlap=overlap,
+            separators=["\n\n", "\n", " ", ""]
         )
         return splitter.split_text(text)
 
@@ -31,20 +50,21 @@ def chunk_hybrid(text, chunk_size, overlap=None):
 
     return final_chunks
 
-
 # ---------------------------------------------------------
 # 2. SEMANTIC CHUNKING
 # ---------------------------------------------------------
-def chunk_semantic(text, chunk_size, overlap=None):  # overlap wird hier strategisch ignoriert
-    if "semantic_model" not in globals():
-        globals()["semantic_model"] = SentenceTransformer("all-MiniLM-L6-v2")
-
-    model = globals()["semantic_model"]
+def chunk_semantic(text, chunk_size, overlap=None):
+    """
+    Semantic Chunking basierend auf Satz-Ähnlichkeit.
+    OVERLAP WIRD IGNORIERT (semantische Grenzen benötigen keine Überlappung).
+    """
+    model = get_semantic_model()
 
     sentences = [s.strip() for s in text.split(". ") if s.strip()]
     if not sentences:
         return []
 
+    # Begrenzung für Performance
     sentences = sentences[:2000]
     embeddings = model.encode(sentences, show_progress_bar=False)
 
@@ -65,11 +85,15 @@ def chunk_semantic(text, chunk_size, overlap=None):  # overlap wird hier strateg
     chunks.append(current_chunk)
     return chunks
 
-
 # ---------------------------------------------------------
 # 3. HIERARCHICAL CHUNKING
 # ---------------------------------------------------------
 def chunk_hierarchical(text, chunk_size, overlap=None):
+    """
+    Hierarchical Chunking: Parent (3×) + Child (1×) Struktur.
+    - Parent: Große Chunks für kontextuelles Verständnis.
+    - Child: Kleine Chunks für präzises Retrieval.
+    """
     if overlap is None:
         overlap = int(chunk_size * 0.1)
         
@@ -93,11 +117,15 @@ def chunk_hierarchical(text, chunk_size, overlap=None):
 
     return final_chunks
 
-
 # ---------------------------------------------------------
 # 4. RECURSIVE BASELINE
 # ---------------------------------------------------------
 def chunk_recursive(text, chunk_size, overlap=None):
+    """
+    Recursive Baseline: Einfache, regelbasierte Segmentierung.
+    - Schnell, aber keine semantische Kohärenz.
+    - Dient als Baseline für Ablationsstudien.
+    """
     if overlap is None:
         overlap = int(chunk_size * 0.1)
         
