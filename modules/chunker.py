@@ -5,7 +5,7 @@ import numpy as np
 import re
 
 # ---------------------------------------------------------
-# 1. HYBRID / MARKDOWN SECTION SPLITTER (Umbenannt für Pipeline)
+# 1. HYBRID / MARKDOWN SECTION SPLITTER
 # ---------------------------------------------------------
 def chunk_hybrid(text, chunk_size, overlap=None):
     if overlap is None:
