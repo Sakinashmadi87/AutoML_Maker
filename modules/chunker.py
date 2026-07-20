@@ -1,12 +1,16 @@
+# modules/chunker.py
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 from sentence_transformers import SentenceTransformer
 import numpy as np
 import re
 
 # ---------------------------------------------------------
-# 1. MARKDOWN SECTION SPLITTER
+# 1. HYBRID / MARKDOWN SECTION SPLITTER (Umbenannt für Pipeline)
 # ---------------------------------------------------------
-def chunk_markdown_section(text, chunk_size, overlap):
+def chunk_hybrid(text, chunk_size, overlap=None):
+    if overlap is None:
+        overlap = int(chunk_size * 0.1)  # Dynamischer 10% Overlap
+        
     sections = re.split(r"\n(?=#)", text)
 
     if len(sections) <= 1:
@@ -29,24 +33,19 @@ def chunk_markdown_section(text, chunk_size, overlap):
 
 
 # ---------------------------------------------------------
-# 2. SEMANTIC CHUNKING (KORRIGIERT)
+# 2. SEMANTIC CHUNKING
 # ---------------------------------------------------------
-def chunk_semantic(text, chunk_size, overlap):
-    # Modell nur einmal laden
+def chunk_semantic(text, chunk_size, overlap=None):  # overlap wird hier strategisch ignoriert
     if "semantic_model" not in globals():
         globals()["semantic_model"] = SentenceTransformer("all-MiniLM-L6-v2")
 
     model = globals()["semantic_model"]
 
-    # Text in Sätze splitten
     sentences = [s.strip() for s in text.split(". ") if s.strip()]
     if not sentences:
         return []
 
-    # Hard cap für AutoML
     sentences = sentences[:2000]
-
-    # Embeddings berechnen
     embeddings = model.encode(sentences, show_progress_bar=False)
 
     chunks = []
@@ -57,7 +56,6 @@ def chunk_semantic(text, chunk_size, overlap):
             np.linalg.norm(embeddings[i]) * np.linalg.norm(embeddings[i-1]) + 1e-8
         )
 
-        # thematischer Bruch oder Chunk zu groß
         if sim < 0.70 or len(current_chunk) > chunk_size * 4:
             chunks.append(current_chunk)
             current_chunk = sentences[i]
@@ -71,7 +69,10 @@ def chunk_semantic(text, chunk_size, overlap):
 # ---------------------------------------------------------
 # 3. HIERARCHICAL CHUNKING
 # ---------------------------------------------------------
-def chunk_hierarchical(text, chunk_size, overlap):
+def chunk_hierarchical(text, chunk_size, overlap=None):
+    if overlap is None:
+        overlap = int(chunk_size * 0.1)
+        
     parent_splitter = RecursiveCharacterTextSplitter(
         chunk_size=chunk_size * 3,
         chunk_overlap=overlap * 2,
@@ -96,7 +97,10 @@ def chunk_hierarchical(text, chunk_size, overlap):
 # ---------------------------------------------------------
 # 4. RECURSIVE BASELINE
 # ---------------------------------------------------------
-def chunk_recursive(text, chunk_size, overlap):
+def chunk_recursive(text, chunk_size, overlap=None):
+    if overlap is None:
+        overlap = int(chunk_size * 0.1)
+        
     splitter = RecursiveCharacterTextSplitter(
         chunk_size=chunk_size,
         chunk_overlap=overlap,
