@@ -14,7 +14,7 @@ def save_checkpoint(checkpoint_file, done_files):
         json.dump(list(done_files), f, ensure_ascii=False, indent=2)
 
 
-# --- Parser-Klasse (GPU-cached) ---
+# --- Parser-Klasse (GPU-cached & Performance-optimiert) ---
 class ArxivParser:
     def __init__(self, method="Docling"):
         if method not in ["PyMuPDF4LLM", "Docling", "Marker"]:
@@ -22,12 +22,21 @@ class ArxivParser:
         self.method = method
         self.converter = None
         
+        # 1. Docling mit strikt deaktiviertem OCR initialisieren (Drastischer Speedup!)
         if self.method == "Docling":
-            print("🚀 Initialisiere Docling (Modelle werden geladen)...")
-            from docling.document_converter import DocumentConverter
-            self.converter = DocumentConverter()
+            print("🚀 Initialisiere Docling (OCR dauerhaft deaktiviert)...")
+            from docling.document_converter import DocumentConverter, PdfFormatOption
+            from docling.datamodel.pipeline_options import PdfPipelineOptions
             
-        # 2. Marker-Parser krisensicher laden (Verhindert den harten Crash auf Kaggle!)
+            pipeline_options = PdfPipelineOptions()
+            pipeline_options.do_ocr = False  # <- Deaktiviert Tesseract/RapidOCR
+            pipeline_options.do_table_structure = True
+            
+            self.converter = DocumentConverter(
+                format_options={"pdf": PdfFormatOption(pipeline_options=pipeline_options)}
+            )
+            
+        # 2. Marker-Parser krisensicher laden (Absturzsicher auf Kaggle)
         elif self.method == "Marker":
             print("🚀 Initialisiere Marker-Parser (Schutz-Stub aktiv)...")
             try:
@@ -38,10 +47,13 @@ class ArxivParser:
                     from marker.convert import Converter
                     self.converter = Converter()
                 except ImportError:
-                    print("⚠️ Marker-Bibliothek fehlt auf dem Cluster. Parser läuft im sicheren Fallback-Modus.")
+                    print("⚠️ Marker-Bibliothek fehlt auf dem Cluster. Fallback aktiv.")
                     self.converter = None
 
     def parse(self, pdf_path):
+        if not pdf_path or not os.path.exists(pdf_path):
+            return ""
+
         if self.method == "PyMuPDF4LLM":
             try:
                 import pymupdf4llm
@@ -57,8 +69,13 @@ class ArxivParser:
                 raise RuntimeError(f"Docling fehlgeschlagen: {e}")
                 
         elif self.method == "Marker":
+            if self.converter is None:
+                return ""  # Sicheres Abfangen ohne 'NoneType'-Crash
             try:
-                rendered, _, _ = self.converter(pdf_path)
+                if callable(getattr(self.converter, "convert", None)):
+                    rendered, _, _ = self.converter.convert(pdf_path)
+                else:
+                    rendered, _, _ = self.converter(pdf_path)
                 return rendered
             except Exception as e:
                 raise RuntimeError(f"Marker fehlgeschlagen: {e}")
@@ -79,7 +96,6 @@ def main(pdfs_dir, output_markdown_dir, output_root_dir, run_mode_param="V1"):
         print(f"❌ Keine PDFs im Ordner gefunden! Pfad prüfen: {pdfs_dir}")
         return
 
-    # Viertel-Aufteilung
     q1 = total_all // 4
     q2 = q1 * 2
     q3 = q1 * 3
@@ -132,12 +148,12 @@ def _get_cached_parser(method: str):
 
 def parse_with_pymupdf(selected_papers: list) -> list:
     parser_instance = _get_cached_parser("pymupdf4llm")
-    return [parser_instance.parse(p) if p.strip() else "" for p in selected_papers]
+    return [parser_instance.parse(p) if isinstance(p, str) and p.strip() else "" for p in selected_papers]
 
 def parse_with_docling(selected_papers: list) -> list:
     parser_instance = _get_cached_parser("docling")
-    return [parser_instance.parse(p) if p.strip() else "" for p in selected_papers]
+    return [parser_instance.parse(p) if isinstance(p, str) and p.strip() else "" for p in selected_papers]
 
 def parse_with_maker(selected_papers: list) -> list:
     parser_instance = _get_cached_parser("maker")
-    return [parser_instance.parse(p) if p.strip() else "" for p in selected_papers]
+    return [parser_instance.parse(p) if isinstance(p, str) and p.strip() else "" for p in selected_papers]
