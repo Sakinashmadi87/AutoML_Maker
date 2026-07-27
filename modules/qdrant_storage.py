@@ -25,7 +25,7 @@ QDRANT_CONFIG = {
     )
 }
 
-class MultiQdrantManager:
+class QdrantManager:
     def __init__(self):
         self.user_secrets = UserSecretsClient()
         self.clients = {}
