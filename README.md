@@ -189,7 +189,7 @@ Verwendung
 
 Folgende KI‑Tools unterstützten die Entwicklung:
 
-ToolVerwendung**ChatGPT (GPT‑4o)**Code‑Generierung, Fehleranalyse, Dokumentation**GitHub Copilot**Code‑Vervollständigung**DeepL**Übersetzung**LanguageTool**Grammatikprüfung
+ToolVerwendung **ChatGPT (GPT‑4o)** Code‑Generierung, Fehleranalyse, Dokumentation **GitHub Copilot** Code‑Vervollständigung **DeepL** Übersetzung **LanguageTool** Grammatikprüfung
 
 📄 Lizenz
 ---------
@@ -199,7 +199,7 @@ Dieses Projekt ist ausschließlich für akademische Zwecke bestimmt.
 👩‍💻 Autorin
 -------------
 
-**Sakina Ahmadi**Leibniz Universität HannoverInstitut für Künstliche Intelligenz (LUHAI)E‑Mail: sakina.ahmadi@stud.uni-hannover.de
+**Sakina Ahmadi** Leibniz Universität HannoverInstitut für Künstliche Intelligenz (LUHAI)E‑Mail: sakina.ahmadi@stud.uni-hannover.de
 
 📚 Referenzen
 -------------
