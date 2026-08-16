@@ -27,19 +27,20 @@ Die zugrundeliegende Datenbasis besteht aus **3.734 ArXiv-Publikationen** (2023�
 ---
 
 ## 📂 Ordnerstruktur
-AutoML_Maker/
-├── config/
-│ └── paths_config.py # Pfade zu Kaggle-Datasets
-├── modules/
-│ ├── chunker.py # 4 Chunking-Strategien
-│ ├── embedder.py # Embedding mit Caching
-│ └── qdrant_storage.py # Qdrant-Verbindung
-├── scripts/
-│ ├── generate_eval_set.py # Testfragen-Generierung (Llama-3)
-│ ├── parse_and_clean_docs.py # PDF → Markdown (CPU-intensiv)
-│ └── upload_to_qdrant.py # Markdown → Qdrant (GPU-intensiv)
-├── automl_study.py # Hauptskript (Optuna-Optimierung)
-├── requirements.txt # Abhängigkeiten
+
+AutoML_Maker/\
+├── config/\
+│ └── paths_config.py # Pfade zu Kaggle-Datasets\
+├── modules/\
+│ ├── chunker.py # 4 Chunking-Strategien\
+│ ├── embedder.py # Embedding mit Caching\
+│ └── qdrant_storage.py # Qdrant-Verbindung\
+├── scripts/\
+│ ├── generate_eval_set.py # Testfragen-Generierung (Llama-3)\
+│ ├── parse_and_clean_docs.py # PDF → Markdown (CPU-intensiv)\
+│ └── upload_to_qdrant.py # Markdown → Qdrant (GPU-intensiv)\
+├── automl_study.py # Hauptskript (Optuna-Optimierung)\
+├── requirements.txt # Abhängigkeiten\
 └── README.md
 
 
@@ -138,20 +139,28 @@ Das Skript `automl_study.py` durchsucht automatisch verschiedene Kombinationen, 
 
 ## 🛠️ Installation
 
-1. **Abhängigkeiten installieren**  
-   ```bash
-   pip install optuna ragas qdrant-client sentence-transformers langchain numpy
-2. **Kaggle-Secrets einrichten (für Qdrant-Zugang)**
-   
-      from kaggle_secrets import UserSecretsClient
-      user_secrets = UserSecretsClient()
-      url = user_secrets.get_secret("QDRANT_URL")
-      api_key = user_secrets.get_secret("QDRANT_API_KEY")
-   
-3. **Repository klonen**
- 
-      git clone https://github.com/Sakinashmadi87/AutoML_Maker.git
-      cd AutoML_Maker
+# Anleitung
+
+## 1. Abhängigkeiten installieren
+```bash
+pip install optuna ragas qdrant-client sentence-transformers langchain numpy
+```
+
+## 2. Kaggle-Secrets einrichten (für Qdrant-Zugang)
+
+```python
+from kaggle_secrets import UserSecretsClient
+user_secrets = UserSecretsClient()
+url = user_secrets.get_secret("QDRANT_URL")
+api_key = user_secrets.get_secret("QDRANT_API_KEY")
+```
+
+## 3. Repository klonen
+
+```bash
+git clone https://github.com/Sakinashmadi87/AutoML_Maker.git
+cd AutoML_Maker
+```
 
 Verwendung
 ----------
