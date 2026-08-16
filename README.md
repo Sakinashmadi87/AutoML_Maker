@@ -1,51 +1,55 @@
-# AutoML_Maker (Masterarbeit RAG Pipeline Optimierung)
+# AutoML_Maker (Masterarbeit RAG-Pipeline-Optimierung)
 
 Hallo! Das ist das GitHub-Repository für meine Masterarbeit im Studiengang Informatik. 
-Das Ziel von diesem Projekt ist es, eine RAG-Pipeline (Retrieval-Augmented Generation) automatisch zu optimieren. Ich benutze dafür **Optuna** für das Suchen der besten Parameter und **Ragas** f�[...]
+Das Ziel dieses Projekts ist es, eine RAG-Pipeline (Retrieval-Augmented Generation) automatisch zu optimieren. Dafür wird **Optuna** für die Hyperparametersuche und **Ragas** für die automatisierte Evaluation der Pipeline-Qualität eingesetzt.
 
-Die wissenschaftlichen Paper wurden vorher mit dem Tool `Marker` aus PDFs in Markdown-Dateien umgewandelt (insgesamt 1965 Papers).
+Die wissenschaftlichen Paper wurden vorab mit dem Tool `Marker` aus PDFs in Markdown-Dateien umgewandelt (insgesamt 1.965 Paper).
 
-## Ordnerstruktur von meinem Projekt
+## 📂 Ordnerstruktur des Projekts
 
-Ich habe den Code jetzt in Module aufgeteilt, damit es übersichtlicher ist als in einem großen Jupyter Notebook:
+Der Code ist in modulare Python-Skripte aufgeteilt, um eine saubere Trennung der Zuständigkeiten zu gewährleisten:
 
 * **config/**
-    * `paths_config.py`: Hier stehen die Pfade zu den Datensätzen auf Kaggle (sehr wichtig wegen den Klammern im Dateinamen!).
+    * `paths_config.py`: Enthält die Pfade zu den Datensätzen auf Kaggle (wichtig für das korrekte Handling von Sonderzeichen/Klammern in den Dateinamen).
 * **modules/**
-    * `chunker.py`: Enthält die 4 verschiedenen Strategien, um den Text zu schneiden (Markdown, Semantic, Hierarchical, Recursive).
-    * `embedder.py`: Hier werden die Texte in Vektoren umgewandelt (mit Cache, damit die GPU nicht abstürzt).
-    * `qdrant_storage.py`: Code für die Verbindung zum Remote Qdrant Server (nutzt Kaggle Secrets für das Passwort).
+    * `chunker.py`: Enthält 4 verschiedene Strategien zur Textsegmentierung (Markdown, Semantic, Hierarchical, Recursive).
+    * `embedder.py`: Übernimmt die Vektorisierung der Texte inklusive Caching-Mechanismus, um GPU-OOM-Abstürze zu verhindern.
+    * `qdrant_storage.py`: Verwaltet die Verbindung zum Remote-Qdrant-Server (nutzt Kaggle Secrets für die Authentifizierung).
 * **scripts/**
-    * `generate_eval_set.py`: Das Skript aus Schritt A, das die 79 Testfragen mit Llama-3 generiert hat.
-* `automl_study.py`: Das Hauptskript. Hier läuft die Optuna-Schleife, die alles steuert.
+    * `generate_eval_set.py`: Skript aus Schritt A, das die Testfragen mittels Llama-3 generiert hat.
+* **modulare-rag-pipeline/**
+    * *(Ehemaliges eigenständiges Repository)*: Enthält vorherige Experimente, Vorstufen der Pipeline-Komponenten sowie Skripte zur Generierung des Gold-Standards und der Ground-Truth-Daten.
+* `automl_study.py`: Das Hauptskript. Hier läuft die zentrale Optuna-Optimierungsschleife, die den gesamten Ablauf steuert.
 
 ## 🔬 Was wird hier überhaupt optimiert? (Suchraum)
 
-Das Skript `automl_study.py` probiert automatisch verschiedene Kombinationen aus, um zu gucken, wo der beste Ragas F1-Score herauskommt:
+Das Skript `automl_study.py` evaluiert automatisch verschiedene Kombinationen der Pipeline-Komponenten, um den **Ragas F1-Score** zu maximieren:
 
-1.  **Embedding-Modelle:**
-    * `bge-m3` (macht nativ 1024 Dimensionen)
-    * `gte-qwen2` (Achtung: Macht eigentlich 1536 Dimensionen, aber im Code schneide ich das über Matryoshka auf 1024 ab und normalisiere neu!)
-    * `mxbai-large` (macht nativ 1024 Dimensionen)
-2.  **Chunking-Strategien:**
-    * `markdown_section` (splittet nach Überschriften #, ##, ###)
-    * `semantic` (guckt nach mathematischen Brüchen im Text)
-    * `hierarchical` (große Parent-Chunks und kleine Child-Chunks)
-    * `recursive_baseline` (der Standard-Splitter von LangChain)
-3.  **Größe:**
-    * Chunk-Größe: Entweder `512` oder `1024` Tokens.
-    * Overlap: Ist im Code fest auf `10%` von der Chunk-Größe eingestellt.
+1. **Embedding-Modelle:**
+    * `bge-m3` (Native Ausgabe: 1024 Dimensionen)
+    * `mxbai-large` (Native Ausgabe: 1024 Dimensionen)
 
-## Wie funktioniert die Evaluation?
+2. **Chunking-Strategien:**
+    * `markdown_section`: Splittet den Text strikt anhand von Markdown-Überschriften (`#`, `##`, `###`).
+    * `semantic`: Berücksichtigt semantische Trennungen und optimiert das Splitting für mathematische Brüche und Formeln im Text.
+    * `hierarchical`: Nutzt eine Eltern-Kind-Struktur (große Parent-Chunks für den Kontext, kleine Child-Chunks für das Retrieval).
+    * `recursive_baseline`: Der standardmäßige, rekursive Textsplitter von LangChain als Baseline.
 
-* Ich benutze das `eval_set_100q.jsonl` (da sind die 79 Gold-Standard-Fragen drin, die fehlerfrei generiert wurden).
-* Weil das Testen mit allen 1965 Papers in jedem Optuna-Schritt viel zu lange dauern würde (und teuer auf dem Server ist), nimmt das Skript im Moment eine **Zufallsstichprobe von 20 Papers** (`TU[...]
-* Am Ende wird die Collection in Qdrant immer wieder gelöscht, damit der Cloud-Speicher nicht voll wird.
+3. **Dimensionierung:**
+    * **Chunk-Größe:** Wahlweise `512` oder `1024` Tokens.
+    * **Overlap:** Im Code fest auf `10%` der gewählten Chunk-Größe definiert.
 
-## Wie man das Projekt startet
+## 📊 Wie funktioniert die Evaluation?
 
-### 1. Librarys installieren
-Man braucht ein paar Pakete. Am besten vorher im Terminal oder in einer Notebook-Zelle installieren:
+* **Testdatensatz:** Es wird die Datei `eval_set_100q.jsonl` genutzt. Diese enthält die 79 verifizierten Gold-Standard-Fragen, die fehlerfrei generiert wurden.
+* **Stichproben-Validierung:** Da die Indexierung aller 1.965 Paper in jedem einzelnen Optuna-Trial zu zeitaufwändig und cloud-kostenintensiv wäre, zieht das Skript pro Durchlauf eine **Zufallsstichprobe von 20 Papern**.
+* **Ressourcen-Schonung:** Nach der Evaluation jedes Einzeldurchlaufs wird die temporäre Collection in Qdrant vollständig gelöscht, um den Cloud-Speicher nicht zu überlasten.
+
+## 🚀 Erste Schritte
+
+### 1. Bibliotheken installieren
+Die benötigten Abhängigkeiten können über das Terminal oder direkt in einer Notebook-Zelle installiert werden:
+
 ```bash
 pip install optuna ragas qdrant-client sentence-transformers langchain numpy
 ```
