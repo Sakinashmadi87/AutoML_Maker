@@ -228,4 +228,4 @@ Dieses Projekt ist ausschließlich für akademische Zwecke bestimmt.
 🙏 Danksagung
 -------------
 
-Ich danke **Prof. Dr. Marius Lindauer** für die Betreuung dieser Arbeit sowie dem **Institut für Künstliche Intelligenz (LUHAI)** der Leibniz Universität Hannover für die Bereitstellung der notwendigen Infrastruktur.
+Ich danke **Prof. Dr. Marius Lindauer** und **Dr. Marcel Wever** für die Betreuung dieser Arbeit sowie dem **Institut für Künstliche Intelligenz (LUHAI)** der Leibniz Universität Hannover für die Bereitstellung der notwendigen Infrastruktur.
