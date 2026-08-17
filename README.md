@@ -3,7 +3,9 @@
 **Masterarbeit im Studiengang Informatik**  
 **Autorin:** Sakina Ahmadi  
 **Matrikelnummer:** 10016542  
-**Betreuer:** Prof. Dr. rer. nat. Marius Lindauer (LUH)  
+**Gutachter:** Prof. Dr. rer. nat. Marius Lindauer (LUH)
+**Gutachter:** Prof. Dr. Henning Wachsmuth
+**Betreuer:** Dr. rer. nat. Marcel Wever
 **Institut:** Institut für Künstliche Intelligenz (LUHAI), Leibniz Universität Hannover  
 **Datum:** 2026
 
