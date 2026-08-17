@@ -1,12 +1,19 @@
 # AutoML_Maker – AutoML-gestützte Optimierung von RAG-Pipelines für wissenschaftliche Literatur
 
-**Masterarbeit im Studiengang Informatik**  
-**Autorin:** Sakina Ahmadi  
-**Matrikelnummer:** 10016542  
+**Masterarbeit im Studiengang Informatik**  
+
+**Autorin:** Sakina Ahmadi  
+
+**Matrikelnummer:** 10016542  
+
 **Gutachter:** Prof. Dr. rer. nat. Marius Lindauer (LUH)
+
 **Gutachter:** Prof. Dr. Henning Wachsmuth
+
 **Betreuer:** Dr. rer. nat. Marcel Wever
-**Institut:** Institut für Künstliche Intelligenz (LUHAI), Leibniz Universität Hannover  
+
+**Institut:** Institut für Künstliche Intelligenz (LUHAI), Leibniz Universität Hannover  
+
 **Datum:** 2026
 
 ---
@@ -29,24 +36,37 @@ Die zugrundeliegende Datenbasis besteht aus **3.734 ArXiv-Publikationen** (2023�
 ---
 
 ## 📂 Ordnerstruktur
+AutoML_Maker/
 
-AutoML_Maker/\
-├── config/\
-│ └── paths_config.py # Pfade zu Kaggle-Datasets\
-├── modules/\
-│ ├── chunker.py # 4 Chunking-Strategien\
-│ ├── embedder.py # Embedding mit Caching\
-│ └── qdrant_storage.py # Qdrant-Verbindung\
-├── scripts/\
-│ ├── generate_eval_set.py # Testfragen-Generierung (Llama-3)\
-│ ├── parse_and_clean_docs.py # PDF → Markdown (CPU-intensiv)\
-│ └── upload_to_qdrant.py # Markdown → Qdrant (GPU-intensiv)\
+├── config/
+
+│ └── paths_config.py # Pfade zu Kaggle-Datasets
+
+├── modules/
+
+│ ├── chunker.py # 4 Chunking-Strategien
+
+│ ├── embedder.py # Embedding mit Caching
+
+│ └── qdrant_storage.py # Qdrant-Verbindung
+
+├── scripts/
+
+│ ├── generate_eval_set.py # Testfragen-Generierung (Llama-3)
+
+│ ├── parse_and_clean_docs.py # PDF → Markdown (CPU-intensiv)
+
+│ └── upload_to_qdrant.py # Markdown → Qdrant (GPU-intensiv)
+
 ├── notebooks/\ # Kaggle Notebooks (z. B. für Docling-Ingestion, TF-IDF Ablation und Parser-Vergleich)
-├── modulare-rag-pipeline/\ # integrierte RAG-Pipeline-Repository von erste Phase der Masterarbeit
-├── automl_study.py # Hauptskript (Optuna-Optimierung)\
-├── requirements.txt # Abhängigkeiten\
-└── README.md
 
+├── modulare-rag-pipeline/\ # integrierte RAG-Pipeline-Repository von erste Phase der Masterarbeit
+
+├── automl_study.py # Hauptskript (Optuna-Optimierung)
+
+├── requirements.txt # Abhängigkeiten
+
+└── README.md
 
 ---
 
