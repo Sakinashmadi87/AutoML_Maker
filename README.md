@@ -39,6 +39,8 @@ AutoML_Maker/\
 │ ├── generate_eval_set.py # Testfragen-Generierung (Llama-3)\
 │ ├── parse_and_clean_docs.py # PDF → Markdown (CPU-intensiv)\
 │ └── upload_to_qdrant.py # Markdown → Qdrant (GPU-intensiv)\
+├── notebooks/\ # Kaggle Notebooks (z. B. für Docling-Ingestion, TF-IDF Ablation und Parser-Vergleich)
+├── modulare-rag-pipeline/\ # integrierte RAG-Pipeline-Repository von erste Phase der Masterarbeit
 ├── automl_study.py # Hauptskript (Optuna-Optimierung)\
 ├── requirements.txt # Abhängigkeiten\
 └── README.md
