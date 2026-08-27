@@ -44,3 +44,5 @@ env/
 # === SYSTEM-DATEIEN ===
 .DS_Store
 Thumbs.db
+# === QDRANT SECRETS ===
+qdrant_secrets.json
